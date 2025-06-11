@@ -89,24 +89,22 @@ class _MyAppState extends State<Register>{
     await Future.delayed(const Duration(seconds: 1));
     final url = Uri.parse('http://192.168.1.2:8080/api/account/create');
 
-    final body = json.encode({
-      'name': _username,
-      'email': _email,
-      'password': _password,
-      'password2': _password2,
-      'cpf': _cpf,
-      'tel': _tel,
-      'address': _address,
-      'birth': _birth,
-    });
-
     final response = await http.post(
         url,
         headers: {
           'Content-Type': 'application/json', // Set the content type to JSON
           'Accept': 'application/json',
         },
-        body: body
+        body: json.encode({
+          'name': _username,
+          'email': _email,
+          'password': _password,
+          'password2': _password2,
+          'cpf': _cpf,
+          'tel': _tel,
+          'address': _address,
+          'birth': _birth,
+        }),
     );
 
     setState(() {
@@ -114,7 +112,8 @@ class _MyAppState extends State<Register>{
         _errorMessage = '';
         print('Register successful: ${response.body}');
       } else {
-        _errorMessage = 'Invalid field';
+        final dataMessage = jsonDecode(response.body);
+        _errorMessage = dataMessage['message'] ?? 'Erro de mensagem';
       }
     });
   }
@@ -219,6 +218,8 @@ class RegisterPage extends StatelessWidget{
                 decoration: const InputDecoration(
                     labelText: 'rewrite your password'
                 ),
+
+                obscureText: true,
 
                 onChanged: (value) => setPassword2(value),
               ),
