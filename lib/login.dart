@@ -32,7 +32,7 @@ class _MyAppState extends State<Login> {
 
   Future<void> login() async {
     await Future.delayed(const Duration(seconds: 1));
-    final url = Uri.parse('http://192.168.1.2:8080/api/account/login');
+    final url = Uri.parse('http://192.168.1.3:8080/api/account/login');
 
     // Create the request body
     final body = json.encode({

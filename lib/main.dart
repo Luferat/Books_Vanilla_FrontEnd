@@ -89,7 +89,7 @@ class BooksVanilla extends StatelessWidget {
 
 class Home extends StatelessWidget {
   // The API URL and property to fetch.
-  final String apiUrl = "http://192.168.1.2:8080/api/book/list";
+  final String apiUrl = "http://192.168.1.3:8080/api/book/list";
   final List<String> properties = ['title', 'price', 'genre','coverImageUrl','author'];
 
   Home({super.key});

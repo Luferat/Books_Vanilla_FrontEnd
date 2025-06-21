@@ -33,7 +33,7 @@ class _MyAppState extends State<Register>{
   String _address = '';
   String _birth = '';
 
-  String _errorMessage = '';
+  String _message = '';
 
 
   void setUsername(String username) {
@@ -87,18 +87,7 @@ class _MyAppState extends State<Register>{
 
   Future<void> register() async{
     await Future.delayed(const Duration(seconds: 1));
-    final url = Uri.parse('http://192.168.1.2:8080/api/account/create');
-
-    final body = json.encode({
-      'name': _username,
-      'email': _email,
-      'password': _password,
-      'password2': _password2,
-      'cpf': _cpf,
-      'tel': _tel,
-      'address': _address,
-      'birth': _birth,
-    });
+    final url = Uri.parse('http://192.168.1.3:8080/api/account/create');
 
     final response = await http.post(
         url,
@@ -106,15 +95,24 @@ class _MyAppState extends State<Register>{
           'Content-Type': 'application/json', // Set the content type to JSON
           'Accept': 'application/json',
         },
-        body: body
+        body: json.encode({
+          'name': _username,
+          'email': _email,
+          'password': _password,
+          'password2': _password2,
+          'cpf': _cpf,
+          'tel': _tel,
+          'address': _address,
+          'birth': _birth,
+        }),
     );
 
     setState(() {
       if (response.statusCode == 200) {
-        _errorMessage = '';
-        print('Register successful: ${response.body}');
+        _message = 'Register successful';
       } else {
-        _errorMessage = 'Invalid field';
+        final dataMessage = jsonDecode(utf8.decode(response.bodyBytes));
+        _message = dataMessage['message'] ?? 'Erro de mensagem';
       }
     });
   }
@@ -136,7 +134,7 @@ class _MyAppState extends State<Register>{
           setAddress: setAddress,
           setBirth: setBirth,
           register: register,
-          errorMessage: _errorMessage
+             message: _message
       ),
     );
   }
@@ -152,7 +150,7 @@ class RegisterPage extends StatelessWidget{
   final Function(String) setAddress;
   final Function(String) setBirth;
   final Function() register;
-  final String errorMessage;
+  final String message;
 
   const RegisterPage({
     super.key,
@@ -165,7 +163,7 @@ class RegisterPage extends StatelessWidget{
     required this.setAddress,
     required this.setBirth,
     required this.register,
-    required this.errorMessage,
+    required this.message,
   });
 
   @override
@@ -220,6 +218,8 @@ class RegisterPage extends StatelessWidget{
                     labelText: 'rewrite your password'
                 ),
 
+                obscureText: true,
+
                 onChanged: (value) => setPassword2(value),
               ),
 
@@ -272,13 +272,15 @@ class RegisterPage extends StatelessWidget{
 
                 onChanged: (value) => setBirth(value),
               ),
+
               const SizedBox(height: 20),
-              ElevatedButton(onPressed: () => register(), child: const Text("create account successfully"),),
-              if(errorMessage.isNotEmpty)
+              ElevatedButton(onPressed: () => register(),
+                child: Text("create account successfully"),),
+              if(message.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 10),
                   child: Text(
-                    errorMessage,
+                    message,
                     style: const TextStyle(color: Colors.red),
                   ),
                 ),
