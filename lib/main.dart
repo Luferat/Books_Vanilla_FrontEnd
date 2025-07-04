@@ -5,6 +5,7 @@ import 'package:footer/footer.dart';
 import 'package:footer/footer_view.dart';
 import 'login.dart';
 import 'register.dart';
+import 'page_book.dart';
 
 
 
@@ -90,6 +91,7 @@ class BooksVanilla extends StatelessWidget {
         '/': (context) => Home(),
         '/login': (context) => const Login(),
         '/register': (context) => const Register(),
+        '/book': (context) => const PageBook(),
 
       },
     );
@@ -98,8 +100,8 @@ class BooksVanilla extends StatelessWidget {
 
 class Home extends StatelessWidget {
   // The API URL and property to fetch.
-  final String apiUrl = "http://192.168.1.2:8080/api/book/list";
-  final List<String> properties = ['title', 'price', 'genre','coverImageUrl','author'];
+  final String apiUrl = "http://10.144.31.70:8080/api/book/list";
+  final List<String> properties = ['title', 'price', 'genre','coverImageUrl','author', 'id'];
 
   Home({super.key});
 
@@ -152,6 +154,8 @@ class Home extends StatelessWidget {
 
         ],
       ),
+
+
       body: FooterView(
         footer: Footer(child: Text("Copy 2025")
           ),flex: 1,
@@ -217,13 +221,16 @@ class Home extends StatelessWidget {
                         ),
                         itemBuilder: (context, index) {
                           var book = books[index];
-                          return BookCard(
-                            // Adjust property keys to your API response keys.
-                            title: book['title'] ?? 'No Title',
-                            author: book['author'] ?? 'No Author',
-                            imageUrl: book['coverImageUrl'] ?? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPhjUyQ760_j4k4sEKfv_7ALMg84oQUpR3eg&',
-                            synopsis: book['price'] ?? 'No Synopsis',
-                          );
+                          return InkWell(onTap: () {
+                            Navigator.pushNamed(context, '/book', arguments: {'title': book['title'], 'author': book['author'], 'imageUrl': book['coverImageUrl'], 'synopsis': book['price']});
+                          },
+                            child: BookCard(
+                              // Adjust property keys to your API response keys.
+                              title: book['title'] ?? 'No Title',
+                              author: book['author'] ?? 'No Author',
+                              imageUrl: book['coverImageUrl'] ?? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPhjUyQ760_j4k4sEKfv_7ALMg84oQUpR3eg&',
+                              synopsis: book['price'] ?? 'No Synopsis',
+                            ),);
                         },
                       ),
                     );
@@ -231,7 +238,6 @@ class Home extends StatelessWidget {
                 },
               ),
               // Burger Menu Widget: Assuming it is a valid widget.
-              BurguerMenu(),
             ],
           ),
         ],
@@ -239,16 +245,6 @@ class Home extends StatelessWidget {
       );
   }
 }
-
-class BurguerMenu extends StatelessWidget {
-  const BurguerMenu({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return DrawerButton();
-  }
-}
-
 
 class BookCard extends StatelessWidget {
   final String title;
@@ -263,6 +259,7 @@ class BookCard extends StatelessWidget {
     required this.imageUrl,
     required this.synopsis,
   });
+
 
   @override
   Widget build(BuildContext context) {
