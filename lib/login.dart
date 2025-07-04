@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import '../main.dart';
+import 'main.dart';
 import 'package:http/http.dart' as http;
+
+import 'register.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -12,7 +14,6 @@ class Login extends StatefulWidget {
 }
 
 class _MyAppState extends State<Login> {
-
   String _username = '';
   String _password = '';
   bool _isLoggedIn = false;
@@ -32,13 +33,10 @@ class _MyAppState extends State<Login> {
 
   Future<void> login() async {
     await Future.delayed(const Duration(seconds: 1));
-    final url = Uri.parse('http://192.168.1.3:8080/api/account/login');
+    final url = Uri.parse('http://192.168.1.2:8080/api/account/login');
 
     // Create the request body
-    final body = json.encode({
-      'email': _username,
-      'password': _password,
-    });
+    final body = json.encode({'email': _username, 'password': _password});
 
     final response = await http.post(
       url,
@@ -48,7 +46,6 @@ class _MyAppState extends State<Login> {
       },
       body: body,
     );
-
 
     setState(() {
       if (response.statusCode == 200) {
@@ -73,19 +70,20 @@ class _MyAppState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    return
-      _isLoggedIn
+    return MaterialApp(
+      title: 'Login App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: _isLoggedIn
           ? HomePage(username: _username, onLogout: logout)
           : LoginPage(
-        setUsername: setUsername,
-        setPassword: setPassword,
-        login: login,
-        errorMessage: _errorMessage,
-      );
-
+              setUsername: setUsername,
+              setPassword: setPassword,
+              login: login,
+              errorMessage: _errorMessage,
+            ),
+    );
   }
 }
-
 
 class LoginPage extends StatelessWidget {
   final Function(String) setUsername;
@@ -103,7 +101,6 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Login'),
@@ -209,14 +206,26 @@ class LoginPage extends StatelessWidget {
                   const SizedBox(height: 20.0),
 
                   Text('Não tem uma conta?'),
-                  InkWell(
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Register()),
+                      );
+                    },
+                    child: Text(
+                      'Sing Up',
+                      style: TextStyle(color: Colors.lightBlueAccent),
+                    ),
+                  ),
+
+                  /*InkWell(
                     child: Text(
                       'Sing Up',
                       style: TextStyle(color: Colors.lightBlueAccent),
                     ),
                     onTap: () => {Navigator.pushNamed(context, '/register')},
-                  ),
-
+                  ),*/
                   const SizedBox(height: 10.0),
 
                   /*        IconButton(
