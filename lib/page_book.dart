@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'login.dart';
+import 'main.dart';
 import 'register.dart';
 
 class PageBook extends StatelessWidget{
@@ -25,45 +26,29 @@ class PageBook extends StatelessWidget{
     }
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.lightBlue,
-        title: SizedBox(
-          width: 400,
-          height: 400,
-          child: Image.network("https://i.imgur.com/h7f6grg.png"),
-        ),toolbarHeight: 200,
-        actions: <Widget>[
-          TextButton(onPressed: (){
-            // Navigate to the Login screen when the button is pressed
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Login()),
-            );
-          },
-              style: TextButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  backgroundColor: Colors.white
-              ),
-              child: Text("Login")),
-
-          Padding(
-              padding: EdgeInsets.all(16.0),
-              child:  TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Register()),
-                  );
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  backgroundColor: Colors.white,
-                ),
-                child: Text("Register"),
-              )
-          )
-        ],
-      ),
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.lightBlue,
+          toolbarHeight: 200,
+          foregroundColor: Colors.white,
+          title: SizedBox(
+            width: 400,
+            height: 400,
+            child: Image.network(AppConstants.appLogoUrl),
+          ),
+          actions: <Widget>[
+            IconButton(
+              iconSize: 50.0,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Login()),
+                );
+              },
+              icon: const Icon(Icons.account_circle),
+            ),
+          ],
+        ),
 
       body: Card(
         elevation: 3,

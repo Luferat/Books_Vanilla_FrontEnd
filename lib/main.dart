@@ -3,13 +3,14 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:footer/footer.dart';
 import 'package:footer/footer_view.dart';
+import 'package:teste/page_book.dart';
 import 'package:teste/register-book.dart';
 import 'login.dart';
 import 'register.dart';
 
 /// Constantes para requisições de rede e ativos de imagem.
 class AppConstants {
-  static const String apiUrl = "http://192.168.1.2:8080/api/book/list";
+  static const String apiUrl = "http://10.144.31.70:8080/api/book/list";
   static const String appLogoUrl = "https://i.imgur.com/h7f6grg.png";
   static const String defaultBookCoverUrl =
       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPhjUyQ760_j4k4sEKfv_7ALMg84oQUpR3eg&';
@@ -87,6 +88,7 @@ class BooksVanilla extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const Home(),
+        '/book': (context) => const PageBook(),
         '/login': (context) => const Login(),
         '/register': (context) => const Register(),
         '/register-book': (context) => const RegisterBook(),
@@ -204,13 +206,16 @@ class _HomeState extends State<Home> {
               ),
               itemBuilder: (context, index) {
                 var book = books[index];
-                return BookCard(
-                  title: book['title'] ?? 'Sem Título',
-                  author: book['author'] ?? 'Sem Autor',
-                  imageUrl:
-                  book['coverImageUrl'] ?? AppConstants.defaultBookCoverUrl,
-                  synopsis: book['price'] ?? 'Sem Preço', // Preço usado como sinopse
-                );
+                return InkWell(onTap: () {
+                  Navigator.pushNamed(context, '/book', arguments: {'title': book['title'], 'author': book['author'], 'imageUrl': book['coverImageUrl'], 'synopsis': book['price']});
+                },
+                  child: BookCard(
+                    // Adjust property keys to your API response keys.
+                    title: book['title'] ?? 'No Title',
+                    author: book['author'] ?? 'No Author',
+                    imageUrl: book['coverImageUrl'] ?? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPhjUyQ760_j4k4sEKfv_7ALMg84oQUpR3eg&',
+                    synopsis: book['price'] ?? 'No Synopsis',
+                  ),);
               },
             ),
           );
