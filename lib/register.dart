@@ -167,7 +167,7 @@ class RegisterPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Registrar"),
         centerTitle: true,
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
 
         leading: IconButton(
@@ -181,7 +181,7 @@ class RegisterPage extends StatelessWidget {
           icon: Icon(Icons.arrow_back),
         ),
       ),
-      backgroundColor: Colors.lightBlue,
+      backgroundColor: Colors.lightBlueAccent,
 
 
       drawer: Drawer(

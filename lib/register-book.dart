@@ -77,9 +77,9 @@ class _RegisterBookState extends State<RegisterBook> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.lightBlueAccent,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.blueAccent,
         elevation: 0,
         leading: BackButton(color: Colors.white),
         title: const Text('Cadastre seu livro', style: TextStyle(color: Colors.white)),

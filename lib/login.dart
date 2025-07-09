@@ -33,7 +33,7 @@ class _Login extends State<Login> {
           'Página Modelo Stateful',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
         centerTitle: true,
       ),
@@ -168,7 +168,7 @@ class _Login extends State<Login> {
         ),
       ),
 
-      bottomNavigationBar: const BottomAppBar(
+      /*bottomNavigationBar: const BottomAppBar(
         color: Colors.blue,
         child: SizedBox(
           height: 50.0,
@@ -179,7 +179,7 @@ class _Login extends State<Login> {
             ),
           ),
         ),
-      ),
+      ),*/
     );
   }
 
