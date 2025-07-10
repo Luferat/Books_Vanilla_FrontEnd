@@ -168,13 +168,22 @@ class _HomeState extends State<Home> {
 /*------------------------------------------------------------------------------------------------------------*/
       body: FooterView(
         footer: Footer(
-          child: Text(""),
+          child: Text("Rodapé aqui"),
         ),
-        flex: 1,
+        flex: 2,
         children: [
           _buildBooksGrid(),
         ],
       ),
+
+      // FloatingActionButton no canto inferior direito
+ /*     floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/register-book');
+        },
+        tooltip: 'Ir para próxima página',
+        child: Icon(Icons.add),
+      ),*/
 
 
     );

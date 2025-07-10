@@ -1,6 +1,10 @@
+
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+
 
 final Dio _dio = Dio();
 
@@ -17,6 +21,9 @@ class _Login extends State<Login> {
   bool _isLoggedIn = false;
   String _errorMessage = '';
 
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   final RegExp _emailRegex = RegExp(
     r'^[a-zA-Z0-9.!#$%&*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*$',
   );
@@ -28,6 +35,7 @@ class _Login extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.lightBlueAccent,
       appBar: AppBar(
         title: const Text(
           'Página Modelo Stateful',
@@ -60,15 +68,10 @@ class _Login extends State<Login> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  /*Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(16),
-                    child: Center( child: Text('Login', style: TextStyle(color: Colors.white))),
-                    decoration: BoxDecoration(color: Colors.black),
-                  ),*/
                   const SizedBox(height: 26.0),
 
                   TextFormField(
+                    controller: _usernameController,
                     style: const TextStyle(fontSize: 20),
                     decoration: const InputDecoration(
                       fillColor: Colors.white12,
@@ -92,6 +95,7 @@ class _Login extends State<Login> {
                   const SizedBox(height: 26.0),
 
                   TextFormField(
+                    controller: _passwordController,
                     style: const TextStyle(fontSize: 20),
                     decoration: const InputDecoration(
                       fillColor: Colors.white12,
@@ -102,7 +106,7 @@ class _Login extends State<Login> {
                     obscureText: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Por favor, insira seu email.';
+                        return 'Por favor, insira sua senha.';
                       }
                       // Validação de e-mail com Regex
                       if (!_passwordRegex.hasMatch(value)) {
@@ -145,59 +149,30 @@ class _Login extends State<Login> {
                       style: TextStyle(color: Colors.lightBlueAccent),
                     ),
                   ),
-
-                  /*InkWell(
-                    child: Text(
-                      'Sing Up',
-                      style: TextStyle(color: Colors.lightBlueAccent),
-                    ),
-                    onTap: () => {Navigator.pushNamed(context, '/register')},
-                  ),*/
                   const SizedBox(height: 10.0),
 
-                  /*        IconButton(
-                    color: Colors.black,
-                      iconSize: 30.0,
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/'');
-                      }, icon: Icon(Icons.arrow_back))*/
                 ],
               ),
             ),
           ),
         ),
       ),
-
-      /*bottomNavigationBar: const BottomAppBar(
-        color: Colors.blue,
-        child: SizedBox(
-          height: 50.0,
-          child: Center(
-            child: Text(
-              'Rodapé da Página Stateful',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ),
-      ),*/
     );
   }
 
   Future<void> _processLogin() async {
     await Future.delayed(const Duration(seconds: 1));
 
-    // Create the request body
-    /*      final body = json.encode({'email': _username, 'password': _password});
+    setState(() {
+      _username = _usernameController.text; // Get the username from the controller
+      _password = _passwordController.text; // Get the password from the controller
+    });
 
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json', // Set the content type to JSON
-          'Accept': 'application/json',
-        },
-        body: body,
-      );*/
-
+    final url = Uri.parse('http://10.144.31.70:8080/api/account/login');
+    final body = json.encode({
+      "email": _username,
+      'password': _password,
+    });
     // Envia a requisição POST com Dio de forma assíncrona
     final Response response = await _dio.post(
       'http://10.144.31.70:8080/api/account/login',
@@ -226,5 +201,11 @@ class _Login extends State<Login> {
         }
       });
     }
+  }
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 }

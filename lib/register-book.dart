@@ -21,23 +21,33 @@ class _RegisterBookState extends State<RegisterBook> {
   final TextEditingController _authorController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _releaseDateController = TextEditingController();
+  final TextEditingController _stockBook = TextEditingController();
 
-  List<String> _selectedCategories = [];
-  final List<String> _allCategories = ["Fiction", "Love", "Drama", "Terror", "Sci-fi", "History"];
+  /*List<String> _selectedCategories = [];
+  final List<String> _allCategories = ["Fiction", "Love", "Drama", "Terror", "Sci-fi", "History"];*/
 
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final uri = Uri.parse('http://192.168.1.2:8080/api/book/create');
+    final uri = Uri.parse('http://10.144.31.70:8080/api/book/register');
     final body = json.encode({
       "title": _titleController.text,
       "subtitle": _subtitleController.text,
       "synopsis": _synopsisController.text,
-      "categories": _selectedCategories,
-      "releaseDate": _parseDate(_releaseDateController.text),
+    /*  "categories": _selectedCategories,*/
+      "publicationYear": int.parse(_releaseDateController.text),
       "isbn": _isbnController.text,
       "author": _authorController.text,
       "price": double.tryParse(_priceController.text.replaceAll('R\$', '').replaceAll(',', '.')) ?? 0.0,
+      "stock": _stockBook.text,
+      "publisher":"editora",
+      "editionNumber": 1,
+      "numberOfPages": 208,
+      "genre": "Generico",
+      "format": "Brochura",
+      "language": "Português",
+      "ebook": false,
+      "status": "ON",
     });
 
     try {
@@ -92,13 +102,13 @@ class _RegisterBookState extends State<RegisterBook> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Será possível adicionar as fotos do livro depois do cadastro', style: TextStyle(color: Colors.white70)),
+              const Text('Será possível adicionar fotos ao livro após o cadastro', style: TextStyle(color: Colors.white70)),
               const SizedBox(height: 20),
 
               _buildTextField(_titleController, 'Título'),
               _buildTextField(_synopsisController, 'Sinopse', maxLines: 3),
 
-              const SizedBox(height: 12),
+              /*const SizedBox(height: 12),
               const Text('Selecione as categorias', style: TextStyle(color: Colors.white)),
               Wrap(
                 spacing: 8.0,
@@ -116,13 +126,14 @@ class _RegisterBookState extends State<RegisterBook> {
                     },
                   );
                 }).toList(),
-              ),
+              ),*/
 
               const SizedBox(height: 20),
               _buildTextField(_releaseDateController, 'Data de lançamento'),
               _buildTextField(_isbnController, 'ISBN'),
               _buildTextField(_authorController, 'Autor(a)'),
               _buildTextField(_priceController, 'Preço'),
+              _buildTextField(_stockBook, 'Quantidades no estoque'),
 
               const SizedBox(height: 30),
               Center(
