@@ -15,13 +15,14 @@ class _RegisterBookState extends State<RegisterBook> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _subtitleController = TextEditingController();
+  /*final TextEditingController _subtitleController = TextEditingController();*/
   final TextEditingController _synopsisController = TextEditingController();
   final TextEditingController _isbnController = TextEditingController();
   final TextEditingController _authorController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _releaseDateController = TextEditingController();
   final TextEditingController _stockBook = TextEditingController();
+  final TextEditingController _publisher = TextEditingController();
 
   /*List<String> _selectedCategories = [];
   final List<String> _allCategories = ["Fiction", "Love", "Drama", "Terror", "Sci-fi", "History"];*/
@@ -32,15 +33,15 @@ class _RegisterBookState extends State<RegisterBook> {
     final uri = Uri.parse('http://10.144.31.70:8080/api/book/register');
     final body = json.encode({
       "title": _titleController.text,
-      "subtitle": _subtitleController.text,
+     /* "subtitle": _subtitleController.text,*/
       "synopsis": _synopsisController.text,
     /*  "categories": _selectedCategories,*/
       "publicationYear": int.parse(_releaseDateController.text),
       "isbn": _isbnController.text,
       "author": _authorController.text,
       "price": double.tryParse(_priceController.text.replaceAll('R\$', '').replaceAll(',', '.')) ?? 0.0,
-      "stock": _stockBook.text,
-      "publisher":"editora",
+      "stock": int.parse(_stockBook.text),
+      "publisher": _publisher.text,
       "editionNumber": 1,
       "numberOfPages": 208,
       "genre": "Generico",
@@ -129,11 +130,12 @@ class _RegisterBookState extends State<RegisterBook> {
               ),*/
 
               const SizedBox(height: 20),
-              _buildTextField(_releaseDateController, 'Data de lançamento'),
+              _buildTextField(_releaseDateController, 'Data de lançamento(apenas o ano)'),
               _buildTextField(_isbnController, 'ISBN'),
               _buildTextField(_authorController, 'Autor(a)'),
+              _buildTextField(_publisher, 'Editora'),
               _buildTextField(_priceController, 'Preço'),
-              _buildTextField(_stockBook, 'Quantidades no estoque'),
+              _buildTextField(_stockBook, 'Quantidade no estoque'),
 
               const SizedBox(height: 30),
               Center(

@@ -126,6 +126,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.lightBlue,
         toolbarHeight: 200,
         foregroundColor: Colors.white,
@@ -149,7 +150,7 @@ class _HomeState extends State<Home> {
       ),
 
 /*------------------------------------------------------quebrado------------------------------------------------------*/
-      drawer: Drawer(
+      /*drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
@@ -164,7 +165,7 @@ class _HomeState extends State<Home> {
 
           ],
         ),
-      ),
+      ),*/
 /*------------------------------------------------------------------------------------------------------------*/
       body: FooterView(
         footer: Footer(
@@ -177,13 +178,15 @@ class _HomeState extends State<Home> {
       ),
 
       // FloatingActionButton no canto inferior direito
- /*     floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.blueAccent,
+        foregroundColor: Colors.white,
         onPressed: () {
           Navigator.pushNamed(context, '/register-book');
         },
-        tooltip: 'Ir para próxima página',
+        tooltip: 'Registrar um livro',
         child: Icon(Icons.add),
-      ),*/
+      ),
 
 
     );
