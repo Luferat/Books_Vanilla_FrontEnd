@@ -24,8 +24,8 @@ class _RegisterBookState extends State<RegisterBook> {
   final TextEditingController _stockBook = TextEditingController();
   final TextEditingController _publisher = TextEditingController();
 
-  /*List<String> _selectedCategories = [];
-  final List<String> _allCategories = ["Fiction", "Love", "Drama", "Terror", "Sci-fi", "History"];*/
+/*  List<String> _selectedCategories = [];
+  final List<String> _allCategories = ["Romance", "Misterio", "Drama", "Terror", "Ação", "Historia"];*/
 
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
@@ -42,13 +42,14 @@ class _RegisterBookState extends State<RegisterBook> {
       "price": double.tryParse(_priceController.text.replaceAll('R\$', '').replaceAll(',', '.')) ?? 0.0,
       "stock": int.parse(_stockBook.text),
       "publisher": _publisher.text,
+      "genre": 'generico',
       "editionNumber": 1,
       "numberOfPages": 208,
-      "genre": "Generico",
       "format": "Brochura",
       "language": "Português",
       "ebook": false,
       "status": "ON",
+      /*"genre": _selectedCategories,*/
     });
 
     try {
@@ -58,7 +59,7 @@ class _RegisterBookState extends State<RegisterBook> {
         body: body,
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Livro cadastrado com sucesso!')),
         );
@@ -109,26 +110,6 @@ class _RegisterBookState extends State<RegisterBook> {
               _buildTextField(_titleController, 'Título'),
               _buildTextField(_synopsisController, 'Sinopse', maxLines: 3),
 
-              /*const SizedBox(height: 12),
-              const Text('Selecione as categorias', style: TextStyle(color: Colors.white)),
-              Wrap(
-                spacing: 8.0,
-                children: _allCategories.map((category) {
-                  final isSelected = _selectedCategories.contains(category);
-                  return FilterChip(
-                    label: Text(category),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() {
-                        isSelected
-                            ? _selectedCategories.remove(category)
-                            : _selectedCategories.add(category);
-                      });
-                    },
-                  );
-                }).toList(),
-              ),*/
-
               const SizedBox(height: 20),
               _buildTextField(_releaseDateController, 'Data de lançamento(apenas o ano)'),
               _buildTextField(_isbnController, 'ISBN'),
@@ -136,6 +117,29 @@ class _RegisterBookState extends State<RegisterBook> {
               _buildTextField(_publisher, 'Editora'),
               _buildTextField(_priceController, 'Preço'),
               _buildTextField(_stockBook, 'Quantidade no estoque'),
+
+/*              const SizedBox(height: 12),
+              const Text('Selecione o genero', style: TextStyle(color: Colors.white)),
+              Column(
+                children: _allCategories.map((category) {
+                  return CheckboxListTile(
+                    title: Text(category),
+                    value: _selectedCategories.contains(category),
+                    onChanged: (bool? selected) {
+                      setState(() {
+                        if (selected == true) {
+                          _selectedCategories.add(category);
+                        } else {
+                          _selectedCategories.remove(category);
+                        }
+                      });
+                    },
+                    activeColor: Colors.white,
+                    checkColor: Colors.blue,
+                    controlAffinity: ListTileControlAffinity.leading,
+                  );
+                }).toList(),
+              ),*/
 
               const SizedBox(height: 30),
               Center(

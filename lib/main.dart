@@ -6,6 +6,7 @@ import 'package:footer/footer_view.dart';
 import 'package:teste/page_books.dart';
 import 'package:teste/register-book.dart';
 import 'login.dart';
+
 // import 'login_antigo.dart';
 import 'register.dart';
 
@@ -23,21 +24,29 @@ class BookService {
   /// A função espera que o JSON tenha uma chave "data" contendo uma lista.
   static Future<List<dynamic>> fetchBookList(String apiUrl) async {
     try {
+      /////////////////////////////////////////////////
       final response = await http.get(Uri.parse(apiUrl));
 
+
       if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.body);
+       /* final jsonResponse = json.decode(response.body);*/
+
+        //faz com que aceite os caracteres especiais
+        final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
+
 
         if (jsonResponse is Map<String, dynamic> &&
             jsonResponse['data'] is List<dynamic>) {
           return jsonResponse['data'];
         } else {
           throw const FormatException(
-              'Estrutura JSON inesperada: lista "data" não encontrada.');
+            'Estrutura JSON inesperada: lista "data" não encontrada.',
+          );
         }
       } else {
         throw Exception(
-            'Falha ao carregar dados, código de status: ${response.statusCode}');
+          'Falha ao carregar dados, código de status: ${response.statusCode}',
+        );
       }
     } catch (error) {
       throw Exception('Erro ao buscar dados: $error');
@@ -47,7 +56,9 @@ class BookService {
   /// Busca a lista JSON de livros da [apiUrl] e retorna as propriedades
   /// especificadas de cada livro como uma Lista de Map<String, String>.
   static Future<List<Map<String, String>>> fetchAndReturnBookList(
-      String apiUrl, List<String> properties) async {
+    String apiUrl,
+    List<String> properties,
+  ) async {
     List<Map<String, String>> bookList = [];
 
     try {
@@ -63,7 +74,9 @@ class BookService {
         }
       }
     } catch (error) {
-      debugPrint('Erro: $error'); // Use debugPrint para erros de desenvolvimento
+      debugPrint(
+        'Erro: $error',
+      ); // Use debugPrint para erros de desenvolvimento
       rethrow; // Lança o erro novamente para ser capturado pelo FutureBuilder
     }
 
@@ -109,17 +122,20 @@ class _HomeState extends State<Home> {
   late Future<List<Map<String, String>>> _booksFuture;
   final List<String> _bookProperties = [
     'title',
-    'price',
-    'genre',
+    'author',
+    'synopsis',
     'coverImageUrl',
-    'author'
+    'genre',
+    'price',
   ];
 
   @override
   void initState() {
     super.initState();
-    _booksFuture =
-        BookService.fetchAndReturnBookList(AppConstants.apiUrl, _bookProperties);
+    _booksFuture = BookService.fetchAndReturnBookList(
+      AppConstants.apiUrl,
+      _bookProperties,
+    );
   }
 
   @override
@@ -139,17 +155,14 @@ class _HomeState extends State<Home> {
           IconButton(
             iconSize: 50.0,
             onPressed: () {
-              Navigator.pushNamed(
-                context,
-                '/login',
-              );
+              Navigator.pushNamed(context, '/login');
             },
             icon: const Icon(Icons.account_circle),
           ),
         ],
       ),
 
-/*------------------------------------------------------quebrado------------------------------------------------------*/
+      /*------------------------------------------------------quebrado------------------------------------------------------*/
       /*drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -166,15 +179,11 @@ class _HomeState extends State<Home> {
           ],
         ),
       ),*/
-/*------------------------------------------------------------------------------------------------------------*/
+      /*------------------------------------------------------------------------------------------------------------*/
       body: FooterView(
-        footer: Footer(
-          child: Text("Rodapé aqui"),
-        ),
+        footer: Footer(child: Text("Rodapé aqui")),
         flex: 2,
-        children: [
-          _buildBooksGrid(),
-        ],
+        children: [_buildBooksGrid()],
       ),
 
       // FloatingActionButton no canto inferior direito
@@ -187,8 +196,6 @@ class _HomeState extends State<Home> {
         tooltip: 'Registrar um livro',
         child: Icon(Icons.add),
       ),
-
-
     );
   }
 
@@ -218,17 +225,32 @@ class _HomeState extends State<Home> {
               ),
               itemBuilder: (context, index) {
                 var book = books[index];
-                return InkWell(onTap: () {
-                  Navigator.pushNamed(context, '/book', arguments: {'title': book['title'], 'author': book['author'], 'imageUrl': book['coverImageUrl'], 'synopsis': book['price']});
-                },
+                return InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/book',
+                      arguments: {
+                        'title': book['title'],
+                        'author': book['author'],
+                        'imageUrl': book['coverImageUrl'],
+                        'synopsis': book['synopsis'],
+                        'price': book['price']
+
+                      },
+                    );
+                  },
                   child: BookCard(
                     // Adjust property keys to your API response keys.
-                    title: book['title'] ?? 'No Title',
-                    author: book['author'] ?? 'No Author',
-                    imageUrl: book['coverImageUrl'] ?? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPhjUyQ760_j4k4sEKfv_7ALMg84oQUpR3eg&',
+                    title: book['title'] ?? 'Sem título',
+                    author: book['author'] ?? 'Desconhecido',
+                    imageUrl:
+                        book['coverImageUrl'] ??
+                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPhjUyQ760_j4k4sEKfv_7ALMg84oQUpR3eg&',
                     synopsis: book['synopsis'] ?? 'Sem sinopse ',
-                    price: book['price'] ?? 'Sem preço',
-                  ),);
+                    price: book['price'] ?? '0.0',
+                  ),
+                );
               },
             ),
           );
@@ -254,8 +276,94 @@ class BookCard extends StatelessWidget {
     required this.price,
   });
 
-  /*----------------------------------------------------------Customizasão dos livros----------------------------------------*/
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 5,
+      shadowColor: Colors.grey.shade300,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Imagem da capa
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            child: Image.network(
+              imageUrl,
+              width: double.infinity,
+              height: 150,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  height: 150,
+                  color: Colors.grey[200],
+                  child: const Icon(
+                    Icons.broken_image,
+                    size: 50,
+                    color: Colors.grey,
+                  ),
+                );
+              },
+            ),
+          ),
 
+          // Informações
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Título
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 4),
+
+                // Autor
+                Text(
+                  'Autor(a): $author',
+                  style: const TextStyle(fontSize: 12, color: Colors.black54),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 6),
+
+                // Sinopse resumida
+                Text(
+                  synopsis,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12),
+                ),
+                const SizedBox(height: 8),
+
+                // Preço
+                Text(
+                  'R\$ $price',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/*----------------------------------------------------------Customizasão dos livros----------------------------------------*/
+
+/*
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -309,4 +417,4 @@ class BookCard extends StatelessWidget {
       ),
     );
   }
-}
+}*/
