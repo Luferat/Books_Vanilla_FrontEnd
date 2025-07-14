@@ -30,7 +30,11 @@ class _RegisterBookState extends State<RegisterBook> {
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
 
+
     final uri = Uri.parse('http://10.144.31.70:8080/api/book/register');
+
+    final uri = Uri.parse('http://10.144.31.70:8080/api/book/create');
+    
     final body = json.encode({
       "title": _titleController.text,
      /* "subtitle": _subtitleController.text,*/
@@ -117,29 +121,6 @@ class _RegisterBookState extends State<RegisterBook> {
               _buildTextField(_publisher, 'Editora'),
               _buildTextField(_priceController, 'Preço'),
               _buildTextField(_stockBook, 'Quantidade no estoque'),
-
-/*              const SizedBox(height: 12),
-              const Text('Selecione o genero', style: TextStyle(color: Colors.white)),
-              Column(
-                children: _allCategories.map((category) {
-                  return CheckboxListTile(
-                    title: Text(category),
-                    value: _selectedCategories.contains(category),
-                    onChanged: (bool? selected) {
-                      setState(() {
-                        if (selected == true) {
-                          _selectedCategories.add(category);
-                        } else {
-                          _selectedCategories.remove(category);
-                        }
-                      });
-                    },
-                    activeColor: Colors.white,
-                    checkColor: Colors.blue,
-                    controlAffinity: ListTileControlAffinity.leading,
-                  );
-                }).toList(),
-              ),*/
 
               const SizedBox(height: 30),
               Center(
