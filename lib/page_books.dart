@@ -17,44 +17,52 @@ class PageBook extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.lightBlue,
-        toolbarHeight: 140,
-        centerTitle: true,
-        title: SizedBox(
-          width: 250,
-          height: 80,
-          child: Image.network(
-            "https://i.imgur.com/h7f6grg.png",
-            fit: BoxFit.contain,
-          ),
-        ),
-      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Imagem do livro
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: AspectRatio(
-                aspectRatio: 3 / 4,
-                child: Image.network(
-                  imageUrl,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Colors.grey[200],
-                      child: const Center(
-                        child: Icon(Icons.broken_image, size: 80, color: Colors.grey),
-                      ),
-                    );
-                  },
+            // Imagem com botão de voltar
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: AspectRatio(
+                    aspectRatio: 3 / 4,
+                    child: Image.network(
+                      imageUrl,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey[200],
+                          child: const Center(
+                            child:
+                            Icon(Icons.broken_image, size: 80, color: Colors.grey),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ),
-              ),
+                // Botão de voltar
+                Positioned(
+                  top: 12,
+                  left: 12,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.4),
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ),
+                ),
+              ],
             ),
+
             const SizedBox(height: 20),
 
             // Card de detalhes
@@ -99,7 +107,7 @@ class PageBook extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      synopsis!,
+                      synopsis,
                       style: const TextStyle(fontSize: 14, color: Colors.black87),
                       textAlign: TextAlign.justify,
                     ),
@@ -122,7 +130,7 @@ class PageBook extends StatelessWidget {
                   ],
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -84,7 +85,7 @@ class _Register extends State<Register> {
 
   Future<void> sendRegister() async {
     await Future.delayed(const Duration(seconds: 1));
-    final url = Uri.parse('http://192.168.1.2:8080/api/account/create');
+    final url = Uri.parse('http://10.144.31.70:8080/api/account/create');
 
     final body = json.encode({
       'name': _username,
@@ -211,14 +212,6 @@ class RegisterPage extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black,
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: Offset(0, 3), // deslocamento da sombra
-                ),
-              ],
             ),
 
             child: Padding(
@@ -257,6 +250,8 @@ class RegisterPage extends StatelessWidget {
                       labelText: 'Repita a senha',
                       border: OutlineInputBorder(),
                     ),
+
+                    obscureText: true,
 
                     onChanged: (value) => setPassword2(value),
                   ),
@@ -333,4 +328,3 @@ class RegisterPage extends StatelessWidget {
       ),);
   }
 }
-

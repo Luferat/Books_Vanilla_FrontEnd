@@ -6,11 +6,10 @@ import 'package:footer/footer_view.dart';
 import 'package:teste/page_books.dart';
 import 'package:teste/register-book.dart';
 import 'login.dart';
-
-// import 'login_antigo.dart';
 import 'register.dart';
+import 'profile.dart';
 
-/// Constantes para requisições de rede e ativos de imagem.
+/// Constantes globais do app
 class AppConstants {
   static const String apiUrl = "http://10.144.31.70:8080/api/book/list";
   static const String appLogoUrl = "https://i.imgur.com/h7f6grg.png";
@@ -18,68 +17,47 @@ class AppConstants {
       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPhjUyQ760_j4k4sEKfv_7ALMg84oQUpR3eg&';
 }
 
-/// Uma classe de serviço para lidar com chamadas de API relacionadas a livros.
+/// Serviço responsável pelas requisições de livros
 class BookService {
-  /// Busca uma lista JSON de livros da [apiUrl] fornecida.
-  /// A função espera que o JSON tenha uma chave "data" contendo uma lista.
   static Future<List<dynamic>> fetchBookList(String apiUrl) async {
     try {
-      /////////////////////////////////////////////////
       final response = await http.get(Uri.parse(apiUrl));
-
-
       if (response.statusCode == 200) {
-       /* final jsonResponse = json.decode(response.body);*/
-
-        //faz com que aceite os caracteres especiais
         final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
-
-
         if (jsonResponse is Map<String, dynamic> &&
             jsonResponse['data'] is List<dynamic>) {
           return jsonResponse['data'];
         } else {
-          throw const FormatException(
-            'Estrutura JSON inesperada: lista "data" não encontrada.',
-          );
+          throw const FormatException('Estrutura JSON inesperada.');
         }
       } else {
-        throw Exception(
-          'Falha ao carregar dados, código de status: ${response.statusCode}',
-        );
+        throw Exception('Erro ${response.statusCode}');
       }
     } catch (error) {
       throw Exception('Erro ao buscar dados: $error');
     }
   }
 
-  /// Busca a lista JSON de livros da [apiUrl] e retorna as propriedades
-  /// especificadas de cada livro como uma Lista de Map<String, String>.
   static Future<List<Map<String, String>>> fetchAndReturnBookList(
-    String apiUrl,
-    List<String> properties,
-  ) async {
+      String apiUrl,
+      List<String> properties,
+      ) async {
     List<Map<String, String>> bookList = [];
-
     try {
       List<dynamic> books = await fetchBookList(apiUrl);
-
       for (var book in books) {
         if (book is Map<String, dynamic>) {
           Map<String, String> bookData = {};
-          for (var property in properties) {
-            bookData[property] = book[property]?.toString() ?? '';
+          for (var prop in properties) {
+            bookData[prop] = book[prop]?.toString() ?? '';
           }
           bookList.add(bookData);
         }
       }
     } catch (error) {
-      debugPrint(
-        'Erro: $error',
-      ); // Use debugPrint para erros de desenvolvimento
-      rethrow; // Lança o erro novamente para ser capturado pelo FutureBuilder
+      debugPrint('Erro: $error');
+      rethrow;
     }
-
     return bookList;
   }
 }
@@ -106,6 +84,7 @@ class BooksVanilla extends StatelessWidget {
         '/register': (context) => const Register(),
         '/register-book': (context) => const RegisterBook(),
         '/book': (context) => const PageBook(),
+        '/profile': (context) => const ProfilePage(),
       },
     );
   }
@@ -113,13 +92,13 @@ class BooksVanilla extends StatelessWidget {
 
 class Home extends StatefulWidget {
   const Home({super.key});
-
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
   late Future<List<Map<String, String>>> _booksFuture;
+
   final List<String> _bookProperties = [
     'title',
     'author',
@@ -132,10 +111,8 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    _booksFuture = BookService.fetchAndReturnBookList(
-      AppConstants.apiUrl,
-      _bookProperties,
-    );
+    _booksFuture =
+        BookService.fetchAndReturnBookList(AppConstants.apiUrl, _bookProperties);
   }
 
   @override
@@ -151,50 +128,47 @@ class _HomeState extends State<Home> {
           height: 400,
           child: Image.network(AppConstants.appLogoUrl),
         ),
-        actions: <Widget>[
+        actions: [
           IconButton(
-            iconSize: 50.0,
-            onPressed: () {
-              Navigator.pushNamed(context, '/login');
-            },
+            iconSize: 50,
             icon: const Icon(Icons.account_circle),
+            onPressed: () => Navigator.pushNamed(context, '/login'),
           ),
         ],
       ),
-
-      /*------------------------------------------------------quebrado------------------------------------------------------*/
-      /*drawer: Drawer(
+      drawer: Drawer(
         child: ListView(
-          padding: EdgeInsets.zero,
           children: <Widget>[
             ListTile(
               leading: const Icon(Icons.add),
               title: const Text('Cadastrar livro'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.of(context).pushNamed('/register-book'); // Usar pushNamed para ir para /test
+                Navigator.pushNamed(context, '/register-book');
               },
             ),
-
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Perfil'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/profile');
+              },
+            ),
           ],
         ),
-      ),*/
-      /*------------------------------------------------------------------------------------------------------------*/
+      ),
       body: FooterView(
         footer: Footer(child: Text("Rodapé aqui")),
         flex: 2,
         children: [_buildBooksGrid()],
       ),
-
-      // FloatingActionButton no canto inferior direito
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
-        onPressed: () {
-          Navigator.pushNamed(context, '/register-book');
-        },
+        onPressed: () => Navigator.pushNamed(context, '/register-book'),
         tooltip: 'Registrar um livro',
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -235,19 +209,15 @@ class _HomeState extends State<Home> {
                         'author': book['author'],
                         'imageUrl': book['coverImageUrl'],
                         'synopsis': book['synopsis'],
-                        'price': book['price']
-
+                        'price': book['price'],
                       },
                     );
                   },
                   child: BookCard(
-                    // Adjust property keys to your API response keys.
                     title: book['title'] ?? 'Sem título',
                     author: book['author'] ?? 'Desconhecido',
-                    imageUrl:
-                        book['coverImageUrl'] ??
-                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPhjUyQ760_j4k4sEKfv_7ALMg84oQUpR3eg&',
-                    synopsis: book['synopsis'] ?? 'Sem sinopse ',
+                    imageUrl: book['coverImageUrl'] ?? AppConstants.defaultBookCoverUrl,
+                    synopsis: book['synopsis'] ?? 'Sem sinopse',
                     price: book['price'] ?? '0.0',
                   ),
                 );
@@ -281,11 +251,9 @@ class BookCard extends StatelessWidget {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 5,
-      shadowColor: Colors.grey.shade300,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Imagem da capa
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
             child: Image.network(
@@ -297,23 +265,16 @@ class BookCard extends StatelessWidget {
                 return Container(
                   height: 150,
                   color: Colors.grey[200],
-                  child: const Icon(
-                    Icons.broken_image,
-                    size: 50,
-                    color: Colors.grey,
-                  ),
+                  child: const Icon(Icons.broken_image, size: 50),
                 );
               },
             ),
           ),
-
-          // Informações
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Título
                 Text(
                   title,
                   maxLines: 2,
@@ -324,8 +285,6 @@ class BookCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-
-                // Autor
                 Text(
                   'Autor(a): $author',
                   style: const TextStyle(fontSize: 12, color: Colors.black54),
@@ -333,8 +292,6 @@ class BookCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 6),
-
-                // Sinopse resumida
                 Text(
                   synopsis,
                   maxLines: 2,
@@ -342,8 +299,6 @@ class BookCard extends StatelessWidget {
                   style: const TextStyle(fontSize: 12),
                 ),
                 const SizedBox(height: 8),
-
-                // Preço
                 Text(
                   'R\$ $price',
                   style: const TextStyle(
@@ -360,61 +315,3 @@ class BookCard extends StatelessWidget {
     );
   }
 }
-
-/*----------------------------------------------------------Customizasão dos livros----------------------------------------*/
-
-/*
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 3,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-              child: Image.network(
-                imageUrl,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: Colors.grey[300],
-                    child: const Center(
-                      child: Icon(Icons.error, color: Colors.redAccent),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              title,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Text(
-              author,
-              style: TextStyle(color: Colors.grey[700]),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Text(
-              synopsis,
-              style: TextStyle(color: Colors.grey[700]),
-            ),
-          ),
-          const SizedBox(height: 8),
-        ],
-      ),
-    );
-  }
-}*/
