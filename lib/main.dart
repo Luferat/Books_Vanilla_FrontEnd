@@ -6,11 +6,14 @@ import 'package:footer/footer_view.dart';
 import 'package:teste/page_books.dart';
 import 'package:teste/register-book.dart';
 import 'login.dart';
+
 import 'profile.dart';
 // import 'login_antigo.dart';
-import 'register.dart';
 
-/// Constantes para requisições de rede e ativos de imagem.
+import 'register.dart';
+import 'profile.dart';
+
+/// Constantes globais do app
 class AppConstants {
   static const String apiUrl = "http://10.144.31.70:8080/api/book/list";
   static const String appLogoUrl = "https://i.imgur.com/h7f6grg.png";
@@ -18,21 +21,23 @@ class AppConstants {
       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPhjUyQ760_j4k4sEKfv_7ALMg84oQUpR3eg&';
 }
 
-/// Uma classe de serviço para lidar com chamadas de API relacionadas a livros.
+/// Serviço responsável pelas requisições de livros
 class BookService {
-  /// Busca uma lista JSON de livros da [apiUrl] fornecida.
-  /// A função espera que o JSON tenha uma chave "data" contendo uma lista.
   static Future<List<dynamic>> fetchBookList(String apiUrl) async {
     try {
       final response = await http.get(Uri.parse(apiUrl));
-
       if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.body);
-
+        final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
         if (jsonResponse is Map<String, dynamic> &&
             jsonResponse['data'] is List<dynamic>) {
           return jsonResponse['data'];
         } else {
+
+          throw const FormatException('Estrutura JSON inesperada.');
+        }
+      } else {
+        throw Exception('Erro ${response.statusCode}');
+
           throw const FormatException(
             'Estrutura JSON inesperada: lista "data" não encontrada.',
           );
@@ -41,39 +46,46 @@ class BookService {
         throw Exception(
           'Falha ao carregar dados, código de status: ${response.statusCode}',
         );
+
       }
     } catch (error) {
       throw Exception('Erro ao buscar dados: $error');
     }
   }
 
-  /// Busca a lista JSON de livros da [apiUrl] e retorna as propriedades
-  /// especificadas de cada livro como uma Lista de Map<String, String>.
   static Future<List<Map<String, String>>> fetchAndReturnBookList(
+
+      String apiUrl,
+      List<String> properties,
+      ) async {
+
     String apiUrl,
     List<String> properties,
   ) async {
-    List<Map<String, String>> bookList = [];
 
+    List<Map<String, String>> bookList = [];
     try {
       List<dynamic> books = await fetchBookList(apiUrl);
-
       for (var book in books) {
         if (book is Map<String, dynamic>) {
           Map<String, String> bookData = {};
-          for (var property in properties) {
-            bookData[property] = book[property]?.toString() ?? '';
+          for (var prop in properties) {
+            bookData[prop] = book[prop]?.toString() ?? '';
           }
           bookList.add(bookData);
         }
       }
     } catch (error) {
+
+      debugPrint('Erro: $error');
+      rethrow;
+
       debugPrint(
         'Erro: $error',
       ); // Use debugPrint para erros de desenvolvimento
       rethrow; // Lança o erro novamente para ser capturado pelo FutureBuilder
-    }
 
+    }
     return bookList;
   }
 }
@@ -108,19 +120,24 @@ class BooksVanilla extends StatelessWidget {
 
 class Home extends StatefulWidget {
   const Home({super.key});
-
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
   late Future<List<Map<String, String>>> _booksFuture;
+
   final List<String> _bookProperties = [
     'title',
-    'price',
-    'genre',
-    'coverImageUrl',
     'author',
+    'synopsis',
+    'coverImageUrl',
+
+    'genre',
+    'price',
+
+    'author',
+
   ];
 
   @override
@@ -136,6 +153,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.lightBlue,
         toolbarHeight: 200,
         foregroundColor: Colors.white,
@@ -144,27 +162,61 @@ class _HomeState extends State<Home> {
           height: 400,
           child: Image.network(AppConstants.appLogoUrl),
         ),
-        actions: <Widget>[
+        actions: [
           IconButton(
+
+            iconSize: 50,
+
             iconSize: 50.0,
             onPressed: () {
               Navigator.pushNamed(context, '/login');
             },
+
             icon: const Icon(Icons.account_circle),
+            onPressed: () => Navigator.pushNamed(context, '/login'),
           ),
         ],
       ),
+ 
+
 
       /*------------------------------------------------------quebrado------------------------------------------------------*/
+ 
       drawer: Drawer(
         child: ListView(
-          padding: EdgeInsets.zero,
           children: <Widget>[
             ListTile(
               leading: const Icon(Icons.add),
               title: const Text('Cadastrar livro'),
               onTap: () {
                 Navigator.pop(context);
+
+                Navigator.pushNamed(context, '/register-book');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Perfil'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/profile');
+              },
+            ),
+          ],
+        ),
+      ),
+      body: FooterView(
+        footer: Footer(child: Text("Rodapé aqui")),
+        flex: 2,
+        children: [_buildBooksGrid()],
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.blueAccent,
+        foregroundColor: Colors.white,
+        onPressed: () => Navigator.pushNamed(context, '/register-book'),
+        tooltip: 'Registrar um livro',
+        child: const Icon(Icons.add),
+
                 Navigator.of(context).pushNamed(
                   '/register-book',
                 ); // Usar pushNamed para ir para /test
@@ -217,11 +269,23 @@ class _HomeState extends State<Home> {
                         'title': book['title'],
                         'author': book['author'],
                         'imageUrl': book['coverImageUrl'],
+
+                        'synopsis': book['synopsis'],
+                        'price': book['price'],
+
                         'synopsis': book['price'],
+
                       },
                     );
                   },
                   child: BookCard(
+ 
+                    title: book['title'] ?? 'Sem título',
+                    author: book['author'] ?? 'Desconhecido',
+                    imageUrl: book['coverImageUrl'] ?? AppConstants.defaultBookCoverUrl,
+                    synopsis: book['synopsis'] ?? 'Sem sinopse',
+                    price: book['price'] ?? '0.0',
+
                     // Adjust property keys to your API response keys.
                     title: book['title'] ?? 'No Title',
                     author: book['author'] ?? 'No Author',
@@ -230,6 +294,7 @@ class _HomeState extends State<Home> {
                         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPhjUyQ760_j4k4sEKfv_7ALMg84oQUpR3eg&',
                     synopsis: book['synopsis'] ?? 'Sem sinopse ',
                     price: book['price'] ?? 'Sem preço',
+ 
                   ),
                 );
               },
@@ -257,15 +322,30 @@ class BookCard extends StatelessWidget {
     required this.price,
   });
 
-  /*----------------------------------------------------------Customizasão dos livros----------------------------------------*/
-
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 5,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+ 
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            child: Image.network(
+              imageUrl,
+              width: double.infinity,
+              height: 150,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  height: 150,
+                  color: Colors.grey[200],
+                  child: const Icon(Icons.broken_image, size: 50),
+                );
+              },
+
           Expanded(
             child: ClipRRect(
               borderRadius: const BorderRadius.vertical(
@@ -284,10 +364,51 @@ class BookCard extends StatelessWidget {
                   );
                 },
               ),
+ 
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
+ 
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Autor(a): $author',
+                  style: const TextStyle(fontSize: 12, color: Colors.black54),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  synopsis,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'R\$ $price',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
             child: Text(
               title,
               maxLines: 2,
@@ -304,6 +425,7 @@ class BookCard extends StatelessWidget {
             child: Text(synopsis, style: TextStyle(color: Colors.grey[700])),
           ),
           const SizedBox(height: 8),
+ 
         ],
       ),
     );

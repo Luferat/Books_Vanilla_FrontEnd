@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -167,7 +168,7 @@ class RegisterPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Registrar"),
         centerTitle: true,
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
 
         leading: IconButton(
@@ -181,7 +182,7 @@ class RegisterPage extends StatelessWidget {
           icon: Icon(Icons.arrow_back),
         ),
       ),
-      backgroundColor: Colors.lightBlue,
+      backgroundColor: Colors.lightBlueAccent,
 
 
       drawer: Drawer(
@@ -211,14 +212,6 @@ class RegisterPage extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black,
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: Offset(0, 3), // deslocamento da sombra
-                ),
-              ],
             ),
 
             child: Padding(
@@ -257,6 +250,8 @@ class RegisterPage extends StatelessWidget {
                       labelText: 'Repita a senha',
                       border: OutlineInputBorder(),
                     ),
+
+                    obscureText: true,
 
                     onChanged: (value) => setPassword2(value),
                   ),
@@ -333,4 +328,3 @@ class RegisterPage extends StatelessWidget {
       ),);
   }
 }
-
