@@ -33,7 +33,6 @@ class _RegisterBookState extends State<RegisterBook> {
 
     final uri = Uri.parse('http://10.144.31.70:8080/api/book/register');
 
-    final uri = Uri.parse('http://10.144.31.70:8080/api/book/create');
     
     final body = json.encode({
       "title": _titleController.text,
